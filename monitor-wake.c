@@ -10,9 +10,15 @@
 #include <string.h>
 #include <unistd.h>
 #include <time.h>
+#include <assert.h>
 
-int main(void)
+#define ARG_NO_TIMESTAMP 0
+#define ARG_UNIX_TIMESTAMP 1
+#define ARG_TIMESTAMP 2
+
+__attribute__((noreturn)) void main_dbus_loop(int arg_timestamp)
 {
+    assert(arg_timestamp >= 0 && arg_timestamp <= 2);
     DBusError err;
     DBusConnection *conn;
     int ret;
@@ -85,12 +91,71 @@ int main(void)
             else {
                 dbus_message_iter_get_basic(&args, &sigvalue);
                 if (sigvalue == 0) {
-                    printf("[%li] awake\n", time(NULL));
+                    switch (arg_timestamp) {
+                    case ARG_NO_TIMESTAMP: {
+                        printf("woken\n");
+                        break;
+                    }
+                    case ARG_UNIX_TIMESTAMP: {
+                        printf("%li\n", time(NULL));
+                        break;
+                    }
+                    case ARG_TIMESTAMP: {
+                        time_t unix_time;
+                        time(&unix_time);
+
+                        printf("%s", ctime(&unix_time));
+                        break;
+                    }
+                    default:
+                        __builtin_unreachable();
+                    }
                 }
             }
         }
 
         // free the message
         dbus_message_unref(msg);
+    }
+}
+
+#define HELP_TEXT \
+    "Usage: monitor-wake [ -h | --help | -u | --unix-timestamp | -t | --timestamp | --version ]\n\
+Monitor and output text when device wakes up from sleep.\n\
+\n\
+    -u, --unix-timestamp    Outputs unix timestamp instead of just 'woken'\n\
+    -t, --timestamp         Outputs human readable timestamp instead of just 'woken'\n\
+    -v, --version           Display version and exit\n\
+    -h, --help              Display this help text and exit\n"
+
+#define VERSION_TEXT "monitor-wake 1.0.0\n"
+
+int main(int argc, char **argv)
+{
+    if (argc == 1) {
+        main_dbus_loop(ARG_NO_TIMESTAMP);
+        // never returns
+    }
+
+    if (argc > 2) {
+        fprintf(stderr,
+                "monitor-wake: expected only one argument. See `monitor-wake --help`\n");
+        return 1;
+    }
+
+    char *arg = argv[1];
+
+    if (strcmp(arg, "-u") == 0 || strcmp(arg, "--unix-timestamp") == 0) {
+        main_dbus_loop(ARG_UNIX_TIMESTAMP);
+        // never returns
+    } else if (strcmp(arg, "-t") == 0 || strcmp(arg, "--timestamp") == 0) {
+        main_dbus_loop(ARG_TIMESTAMP);
+        // never returns
+    } else if (strcmp(arg, "-v") == 0 || strcmp(arg, "--version") == 0) {
+        printf(VERSION_TEXT);
+        return 0;
+    } else if (strcmp(arg, "-h") == 0 || strcmp(arg, "--help") == 0) {
+        printf(HELP_TEXT);
+        return 0;
     }
 }
