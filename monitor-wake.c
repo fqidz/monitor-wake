@@ -1,9 +1,15 @@
+// https://www.matthew.ath.cx/misc/dbus
+// https://www.matthew.ath.cx/projects.git/dbus-example.c
+
+#include "dbus/dbus-protocol.h"
 #include "dbus/dbus-shared.h"
 #include <dbus-1.0/dbus/dbus.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include <unistd.h>
+#include <time.h>
 
 int main(void)
 {
@@ -23,13 +29,17 @@ int main(void)
         exit(1);
     }
 
-    // Request a name on the bus.
-    // monitor-wake.conf needs to be in /usr/share/dbus-1/system.d/ to allow user to
-    // own the bus name.
+    // request a name on the bus
     ret = dbus_bus_request_name(conn, "user.MonitorWake",
                                 DBUS_NAME_FLAG_REPLACE_EXISTING, &err);
     if (dbus_error_is_set(&err)) {
-        fprintf(stderr, "Name Error (%s: %s)\n", err.name, err.message);
+        if (strcmp(DBUS_ERROR_ACCESS_DENIED, err.name) == 0) {
+            fprintf(stderr,
+                    "%s: %s (Check the man page or visit https://github.com/fqidz/monitor-wake for ways to allow access)\n",
+                    err.name, err.message);
+        } else {
+            fprintf(stderr, "Name Error (%s: %s)\n", err.name, err.message);
+        }
         dbus_error_free(&err);
     }
     if (DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER != ret) {
@@ -65,26 +75,22 @@ int main(void)
         }
 
         // check if the message is a signal from the correct interface and with the correct name
-        if (dbus_message_is_signal(msg, "org.freedesktop.login1.Manager", "PrepareForSleep")) {
+        if (dbus_message_is_signal(msg, "org.freedesktop.login1.Manager",
+                                   "PrepareForSleep")) {
             // read the parameters
             if (!dbus_message_iter_init(msg, &args))
                 fprintf(stderr, "Message has no arguments!\n");
-            else if (DBUS_TYPE_STRING != dbus_message_iter_get_arg_type(&args))
-                fprintf(stderr, "Argument is not string!\n");
+            else if (DBUS_TYPE_BOOLEAN != dbus_message_iter_get_arg_type(&args))
+                fprintf(stderr, "Argument is not bool!\n");
             else {
                 dbus_message_iter_get_basic(&args, &sigvalue);
-                printf("Got Signal with value %i\n", sigvalue);
+                if (sigvalue == 0) {
+                    printf("[%li] awake\n", time(NULL));
+                }
             }
         }
 
         // free the message
         dbus_message_unref(msg);
     }
-
-    // if (conn) {
-    //     dbus_connection_close(conn);
-    //     dbus_connection_unref(conn);
-    // }
-    //
-    // return 0;
 }
