@@ -30,28 +30,6 @@ DBusConnection *connect_system_bus(DBusError *error)
     return connection;
 }
 
-void request_bus_name(DBusConnection *connection, const char *bus_name,
-                      DBusError *error)
-{
-    // request a name on the bus
-    int ret = dbus_bus_request_name(connection, bus_name,
-                                    DBUS_NAME_FLAG_REPLACE_EXISTING, error);
-    if (dbus_error_is_set(error)) {
-        if (strcmp(DBUS_ERROR_ACCESS_DENIED, error->name) == 0) {
-            fprintf(stderr,
-                    "%s: %s (Check the man page or visit https://github.com/fqidz/monitor-wake for ways to allow access)\n",
-                    error->name, error->message);
-        } else {
-            fprintf(stderr, "Name Error (%s: %s)\n", error->name,
-                    error->message);
-        }
-        dbus_error_free(error);
-    }
-    if (DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER != ret) {
-        exit(1);
-    }
-}
-
 /* Main loop where we open a dbus connection, request a name on the bus, and
    listen & output text for when 'org.freedesktop.login1.Manager' sends a `false`
    'PrepareSleep' signal. */
@@ -64,8 +42,8 @@ __attribute__((noreturn)) void main_dbus_loop(int arg_timestamp)
     dbus_error_init(&err);
 
     DBusConnection *conn = connect_system_bus(&err);
-
-    request_bus_name(conn, "user.MonitorWake", &err);
+    // We don't need to request a bus name as we're only reading signals
+    // and don't really require a "named" connection
 
     // add a rule for which messages we want to see
     dbus_bus_add_match(
