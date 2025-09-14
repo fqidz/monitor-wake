@@ -6,6 +6,7 @@
       "-xc",
       "-std=c99",
       "-ggdb3",
+      "-ferror-limit=0",
       "-Weverything",
       "-Werror",
       "-Wno-used-but-marked-unused",
@@ -21,9 +22,9 @@
       "monitor-wake",
       "monitor-wake.c"
     ],
-    "directory": "/home/faidz/Projects/bash-playground",
-    "file": "/home/faidz/Projects/bash-playground/monitor-wake.c",
-    "output": "/home/faidz/Projects/bash-playground/monitor-wake"
+    "directory": "/home/faidz/Projects/monitor-wake",
+    "file": "/home/faidz/Projects/monitor-wake/monitor-wake.c",
+    "output": "/home/faidz/Projects/monitor-wake/monitor-wake"
   },
   {
     "arguments": [
@@ -57,8 +58,8 @@
       "-debug-info-kind=constructor",
       "-dwarf-version=5",
       "-debugger-tuning=gdb",
-      "-fdebug-compilation-dir=/home/faidz/Projects/bash-playground",
-      "-fcoverage-compilation-dir=/home/faidz/Projects/bash-playground",
+      "-fdebug-compilation-dir=/home/faidz/Projects/monitor-wake",
+      "-fcoverage-compilation-dir=/home/faidz/Projects/monitor-wake",
       "-nostdsysteminc",
       "-resource-dir",
       "/nix/store/fbfcll570w9vimfbh41f9b4rrwnp33f3-clang-wrapper-19.1.7/resource-root",
@@ -134,7 +135,7 @@
       "-Wno-disabled-macro-expansion",
       "-std=c99",
       "-ferror-limit",
-      "19",
+      "0",
       "-fzero-call-used-regs=used-gpr",
       "-fwrapv",
       "-stack-protector",
@@ -151,11 +152,11 @@
       "-x",
       "c",
       "-o",
-      "/tmp/monitor-wake-fc25c1.o",
+      "/tmp/monitor-wake-70db23.o",
       "monitor-wake.c"
     ],
-    "directory": "/home/faidz/Projects/bash-playground",
-    "file": "/home/faidz/Projects/bash-playground/monitor-wake.c",
-    "output": "/tmp/monitor-wake-fc25c1.o"
+    "directory": "/home/faidz/Projects/monitor-wake",
+    "file": "/home/faidz/Projects/monitor-wake/monitor-wake.c",
+    "output": "/tmp/monitor-wake-70db23.o"
   }
 ]

@@ -2,6 +2,7 @@ CC = clang
 ARGS = -xc\
 	   -std=c99\
 	   -ggdb3\
+	   -ferror-limit=0\
 	   -Weverything\
 	   -Werror\
 	   -Wno-used-but-marked-unused\

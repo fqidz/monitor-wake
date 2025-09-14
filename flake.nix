@@ -41,11 +41,6 @@
               ];
             })
           ];
-
-          # C_INCLUDE_PATH = pkgs.lib.makeLibraryPath [
-          #   pkgs.dbus.lib
-          #   pkgs.dbus.dev
-          # ];
         };
       }
     );
