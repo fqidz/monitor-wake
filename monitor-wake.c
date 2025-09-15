@@ -15,8 +15,7 @@
 #define ARG_UNIX_TIMESTAMP 1
 #define ARG_TIMESTAMP 2
 
-/* Connect to dbus system bus. Although we don't need any permissions to
-   connect to the system bus, we do need permissions to request a bus name. */
+/* Connect to dbus system bus. */
 DBusConnection *connect_system_bus(DBusError *error)
 {
     DBusConnection *connection = dbus_bus_get(DBUS_BUS_SYSTEM, error);
@@ -92,8 +91,6 @@ __attribute__((noreturn)) void main_dbus_loop(int arg_timestamp)
                 //
                 // More info here:
                 // https://www.freedesktop.org/wiki/Software/systemd/inhibit/
-                // before the device sleeps.
-
                 dbus_message_iter_get_basic(&args, &sigvalue);
                 if (sigvalue == 0) {
                     switch (arg_timestamp) {
@@ -114,6 +111,14 @@ __attribute__((noreturn)) void main_dbus_loop(int arg_timestamp)
                     }
                     default:
                         __builtin_unreachable();
+                    }
+
+                    if (!isatty(STDOUT_FILENO)) {
+                        // If stdout isn't in a tty, we need to fflush() it to
+                        // be able to redirect output in bash. Something to do
+                        // with printing inside a while loop or something I
+                        // don't really know; I can't find anything about it.
+                        fflush(stdout);
                     }
                 }
             }
