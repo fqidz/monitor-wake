@@ -13,8 +13,10 @@ ARGS = -xc\
 	   -Wno-missing-prototypes\
 	   -Wno-disabled-macro-expansion
 
+OUTPUT_FILE = out/monitor-wake
+
 monitor-wake: monitor-wake.c
-	$(CC) $(ARGS) `pkg-config --cflags --libs dbus-1` monitor-wake.c -o monitor-wake
+	$(CC) $(ARGS) `pkg-config --cflags --libs dbus-1` monitor-wake.c -o $(OUTPUT_FILE)
 
 clean:
 	rm monitor-wake

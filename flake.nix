@@ -14,8 +14,23 @@
       system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
+        monitor-wake = pkgs.clangStdenv.mkDerivation {
+          name = "monitor-wake";
+          src = builtins.path { name = "monitor-wake"; path = ./.; };
+
+          nativeBuildInputs = [ pkgs.pkg-config ];
+          buildInputs = [ pkgs.dbus ];
+
+          phases = [ "buildPhase" ];
+          buildPhase = ''
+            mkdir -p $out/bin/
+            make -C $src OUTPUT_FILE=$out/bin/monitor-wake
+          '';
+          outputs = [ "out" ];
+        };
       in
       {
+        packages.default = monitor-wake;
         devShells.default = pkgs.mkShell {
           nativeBuildInputs = [ pkgs.pkg-config ];
           buildInputs = [ pkgs.dbus ];
